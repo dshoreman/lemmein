@@ -32,7 +32,7 @@ try {
       <?php foreach ($list['connections'] as $connId => $conn): ?>
       <tr align="center">
         <td><?= $connId ?></td>
-        <?php if (!is_array($conn) || !$conn['ip'] || !$conn['since']): ?>
+        <?php if (!is_array($conn) || !isset($conn['ip'], $conn['since'])): ?>
           <td colspan="2">Awaiting Ping</td>
         <?php else: ?>
           <td><?= $conn['ip'] ?></td>
