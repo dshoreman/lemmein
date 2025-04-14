@@ -23,7 +23,11 @@ function update_connection(array $list, string $connection): array {
   is_array($list['connections'][$connection] ?? null)
     || throw new Exception("Connection '{$connection}' is missing or invalid.");
 
-  $list['connections'][$connection]['ip'] = get_ip();
+  $new_ip = get_ip();
+  $old_ip = $list['connections'][$connection]['ip'] ?? '';
+  $new_ip === $old_ip && throw new Exception("Connection IP hasn't changed!");
+
+  $list['connections'][$connection]['ip'] = $new_ip;
 
   return $list;
 }
