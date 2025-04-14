@@ -32,8 +32,12 @@ try {
       <?php foreach ($list['connections'] as $connId => $conn): ?>
       <tr align="center">
         <td><?= $connId ?></td>
-        <td><?= $conn['current_ip'] ?? 'None' ?></td>
-        <td><?= $conn['updated_at'] ?? 'Never' ?></td>
+        <?php if (!is_array($conn) || !$conn['ip'] || !$conn['since']): ?>
+          <td colspan="2">Awaiting Ping</td>
+        <?php else: ?>
+          <td><?= $conn['ip'] ?></td>
+          <td><?= date('d/m/Y, H:i:s', $conn['since']) ?></td>
+        <?php endif; ?>
       </tr>
       <?php endforeach; ?>
     </table>

@@ -28,6 +28,7 @@ function update_connection(array $list, string $connection): array {
   $new_ip === $old_ip && throw new Exception("Connection IP hasn't changed!");
 
   $list['connections'][$connection]['ip'] = $new_ip;
+  $list['connections'][$connection]['since'] = time();
 
   return $list;
 }
