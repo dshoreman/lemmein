@@ -9,7 +9,7 @@ try {
   if ($connection) {
     $list = update_connection($list, $connection);
 
-    save_json($list);
+    save_json($list) && header("Location: /ping.php");
   }
 } catch (Exception $e) {
   $error = "<b>Error:</b> {$e->getMessage()}";
