@@ -27,3 +27,12 @@ function update_connection(array $list, string $connection): array {
 
   return $list;
 }
+
+function save_json(array $list): bool {
+  $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR;
+
+  $json = json_encode($list, $flags);
+
+  return file_put_contents('../../data/list.json', $json)
+    || throw new Exception("Failed to write JSON.");
+}

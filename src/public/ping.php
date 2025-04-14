@@ -8,6 +8,8 @@ try {
 
   if ($connection) {
     $list = update_connection($list, $connection);
+
+    save_json($list);
   }
 } catch (Exception $e) {
   $error = "<b>Error:</b> {$e->getMessage()}";
