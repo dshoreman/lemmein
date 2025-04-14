@@ -2,6 +2,8 @@
 
 require_once '../core.php';
 
+header('Content-Type: text/plain');
+
 try {
   $list = list_from_file();
 
