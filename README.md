@@ -21,6 +21,9 @@ Optionally create a **data/config.json** to set custom options:
 
 ```jsonp
 {
-  "timezone": "Europe/London"
+  "timezone": "Europe/London",
+  "proxy_ips": [
+    "127.0.0.1"
+  ]
 }
 ```

@@ -20,7 +20,17 @@ function list_from_file(): array {
 }
 
 function get_ip(): string {
-  return $_SERVER['REMOTE_ADDR'];
+  global $config;
+
+  $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
+  $real = $_SERVER['HTTP_X_REAL_IP'] ?? null;
+  $remote = $_SERVER['REMOTE_ADDR'];
+
+  if (in_array($remote, $config->proxies ?? [])) {
+    return $real ?: $forwarded ?: $remote;
+  }
+
+  return $remote;
 }
 
 function update_connection(array $list, string $connection): array {
@@ -54,6 +64,7 @@ if (file_exists('../../data/config.json')) {
   $user_config = read_json_data('config.json');
 
   $user_config['timezone'] && $config->timezone = $user_config['timezone'];
+  $user_config['proxy_ips'] && $config->proxies = $user_config['proxy_ips'];
 }
 
 date_default_timezone_set($config->timezone);
