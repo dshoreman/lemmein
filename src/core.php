@@ -14,3 +14,16 @@ function list_from_file(): array {
 
   return $json;
 }
+
+function get_ip(): string {
+  return $_SERVER['REMOTE_ADDR'];
+}
+
+function update_connection(array $list, string $connection): array {
+  is_array($list['connections'][$connection] ?? null)
+    || throw new Exception("Connection '{$connection}' is missing or invalid.");
+
+  $list['connections'][$connection]['ip'] = get_ip();
+
+  return $list;
+}
