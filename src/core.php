@@ -1,18 +1,22 @@
 <?php
 
+function read_json_data($filename): array {
+  $file = file_get_contents('../../data/' . $filename);
+
+  $file === false && throw new Exception("Failed to open data/{$filename}.");
+
+  return json_decode($file, true);
+}
+
 function list_from_file(): array {
-  $file = file_get_contents('../../data/list.json');
+  $list = read_json_data('list.json');
 
-  $file === false && throw new Exception("Failed to open list.json file.");
+  $list['name'] || throw new Exception("Missing list name.");
 
-  $json = json_decode($file, true);
-
-  $json['name'] || throw new Exception("Missing list name.");
-
-  is_array($json['connections'] ?? '') && count($json['connections'])
+  is_array($list['connections'] ?? '') && count($list['connections'])
     || throw new Exception("No valid connections found in JSON.");
 
-  return $json;
+  return $list;
 }
 
 function get_ip(): string {
@@ -41,3 +45,15 @@ function save_json(array $list): bool {
   return file_put_contents('../../data/list.json', $json)
     || throw new Exception("Failed to write JSON.");
 }
+
+$config = (object) [
+  'timezone' => 'Europe/London',
+];
+
+if (file_exists('../../data/config.json')) {
+  $user_config = read_json_data('config.json');
+
+  $user_config['timezone'] && $config->timezone = $user_config['timezone'];
+}
+
+date_default_timezone_set($config->timezone);

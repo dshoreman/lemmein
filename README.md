@@ -2,7 +2,9 @@
 
 Manage an IP list for firewalls to update your IP from outside.
 
-## Sample `lists.json`
+## Getting Started
+
+Create a minimal **data/list.json** with the connections to be managed:
 
 ```json
 {
@@ -12,5 +14,13 @@ Manage an IP list for firewalls to update your IP from outside.
     "Work": {}
     "4G": {}
   }]
+}
+```
+
+Optionally create a **data/config.json** to set custom options:
+
+```jsonp
+{
+  "timezone": "Europe/London"
 }
 ```
