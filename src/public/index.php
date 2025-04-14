@@ -2,7 +2,11 @@
 
 require_once '../core.php';
 
-$list = list_from_file();
+try {
+  $list = list_from_file();
+} catch (Exception $e) {
+  $error = "<b>Error:</b> {$e->getMessage()}";
+}
 
 ?>
 <!DOCTYPE html>
@@ -14,6 +18,8 @@ $list = list_from_file();
   </head>
   <body>
     <h1>Connections Dashboard</h1>
+
+    <?= $error ?? "" ?>
 
     <h2>Managing List: <?= $list['name'] ?></h2>
 
