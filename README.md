@@ -13,6 +13,9 @@ Create a minimal **data/list.json** with the connections to be managed:
     "Home": "10.2.2.0/24",
     "Work": "123.45.100.48/28"
   },
+  "consumers": [
+    "10.0.2.1"
+  ],
   "connections": {
     "4G": {}
   }]
