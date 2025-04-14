@@ -26,6 +26,10 @@ function get_ip(): string {
   $real = $_SERVER['HTTP_X_REAL_IP'] ?? null;
   $remote = $_SERVER['REMOTE_ADDR'];
 
+  if ($forwarded && str_contains($forwarded, ',')) {
+    $forwarded = explode(',', str_replace(' ', '', $forwarded))[0];
+  }
+
   if (in_array($remote, $config->proxies ?? [])) {
     return $real ?: $forwarded ?: $remote;
   }
