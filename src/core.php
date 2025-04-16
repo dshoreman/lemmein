@@ -28,14 +28,19 @@ function enforce_user(): void {
     die(header('Location: /ping.php', true, 307));
   }
 
-  header('Content-Type: text/plain');
-  echo "Access denied for {$user}." . PHP_EOL;
+  // Refuse to serve requests lacking correct UID header
+  http_response_code($uid ? 401 : 403);
 
-  if ($uid && $config->show_uids) {
-    echo PHP_EOL . PHP_EOL . 'Your UID: ' . $uid . PHP_EOL;
+  if (!$config->show_uids) {
+    exit;
   }
 
-  die(http_response_code(403));
+  $reason = $uid ? 'Unauthorised' : 'Missing auth headers';
+  $reason = "Access denied for {$user}. Reason: {$reason}." . PHP_EOL;
+  $uid && $reason .= PHP_EOL . PHP_EOL . 'Your UID: ' . $uid . PHP_EOL;
+
+  header('Content-Type: text/plain');
+  die($reason);
 }
 
 function login_status(): string {
