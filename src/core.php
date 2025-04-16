@@ -14,6 +14,16 @@ function enforce_user(): void {
     return;
   }
 
+  $username = trim($_SERVER["HTTP_{$config->auth_header}_USERNAME"]);
+  $user = $username ? "user '{$username}'" : 'unknown user';
+
+  header('Content-Type: text/plain');
+  echo "Access denied for {$user}." . PHP_EOL;
+
+  if ($uid && $config->show_uids) {
+    echo PHP_EOL . PHP_EOL . 'Your UID: ' . $uid . PHP_EOL;
+  }
+
   die(http_response_code(403));
 }
 
@@ -96,6 +106,7 @@ function save_json(array $list): bool {
 
 $config = (object) [
   'admins' => [],
+  'show_uids' => false,
   'timezone' => 'Europe/London',
 ];
 
@@ -104,6 +115,7 @@ if (file_exists('../../data/config.json')) {
 
   $config->admins = (array) ($user_config['admins'] ?? []);
   $user_config['auth_header'] && $config->auth_header = $user_config['auth_header'];
+  $config->show_uids = (bool) ($user_config['show_uids'] ?? false);
 
   $user_config['timezone'] && $config->timezone = $user_config['timezone'];
   $user_config['proxy_ips'] && $config->proxies = $user_config['proxy_ips'];
