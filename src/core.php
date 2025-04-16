@@ -1,5 +1,22 @@
 <?php
 
+function enforce_user(): void {
+  global $config;
+
+  if (!$config->auth_header) {
+    return;
+  }
+
+  $admins = array_filter($config->admins ?? []);
+  $uid = trim($_SERVER["HTTP_{$config->auth_header}_UID"]);
+
+  if (in_array($uid, $admins)) {
+    return;
+  }
+
+  die(http_response_code(403));
+}
+
 function login_status(): string {
   global $config;
 
@@ -78,15 +95,22 @@ function save_json(array $list): bool {
 }
 
 $config = (object) [
+  'admins' => [],
   'timezone' => 'Europe/London',
 ];
 
 if (file_exists('../../data/config.json')) {
   $user_config = read_json_data('config.json');
 
+  $config->admins = (array) ($user_config['admins'] ?? []);
   $user_config['auth_header'] && $config->auth_header = $user_config['auth_header'];
+
   $user_config['timezone'] && $config->timezone = $user_config['timezone'];
   $user_config['proxy_ips'] && $config->proxies = $user_config['proxy_ips'];
 }
 
 date_default_timezone_set($config->timezone);
+
+if ($_SERVER['SCRIPT_NAME'] !== '/list.php') {
+  enforce_user();
+}
