@@ -10,12 +10,23 @@ function enforce_user(): void {
   $admins = array_filter($config->admins ?? []);
   $uid = trim($_SERVER["HTTP_{$config->auth_header}_UID"]);
 
+  // Allow admins to access anything
   if (in_array($uid, $admins)) {
     return;
   }
 
   $username = trim($_SERVER["HTTP_{$config->auth_header}_USERNAME"]);
   $user = $username ? "user '{$username}'" : 'unknown user';
+
+  // Allow anyone to access the ping page
+  if ($uid && $username && $_SERVER['SCRIPT_NAME'] === '/ping.php') {
+    return;
+  }
+
+  // Redirect valid non-admin ping users from dashboard
+  if ($uid && $username && !$config->show_uids) {
+    die(header('Location: /ping.php', true, 307));
+  }
 
   header('Content-Type: text/plain');
   echo "Access denied for {$user}." . PHP_EOL;
