@@ -1,5 +1,22 @@
 <?php
 
+function login_status(): string {
+  global $config;
+
+  if (!$config->auth_header ?? null) {
+    return '';
+  }
+
+  $user = $_SERVER["HTTP_{$config->auth_header}_USERNAME"] ?? null;
+  $name = $_SERVER["HTTP_{$config->auth_header}_NAME"] ?? null;
+
+  if (!$user || !$name) {
+    return 'Unauthenticated';
+  }
+
+  return "Logged in as {$user} ({$name})";
+}
+
 function read_json_data($filename): array {
   $file = file_get_contents('../../data/' . $filename);
 
@@ -67,6 +84,7 @@ $config = (object) [
 if (file_exists('../../data/config.json')) {
   $user_config = read_json_data('config.json');
 
+  $user_config['auth_header'] && $config->auth_header = $user_config['auth_header'];
   $user_config['timezone'] && $config->timezone = $user_config['timezone'];
   $user_config['proxy_ips'] && $config->proxies = $user_config['proxy_ips'];
 }

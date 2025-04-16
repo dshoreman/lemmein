@@ -15,15 +15,18 @@ try {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Connections | Lemmein</title>
+    <link rel="stylesheet" href="/assets/style.css" />
   </head>
   <body>
+    <small><?= login_status(); ?></small>
+
     <h1>Connections Dashboard</h1>
 
     <?= $error ?? "" ?>
 
     <h2>Managing List: <?= $list['name'] ?></h2>
 
-    <table cellspacing="25">
+    <table align="center" cellspacing="25">
       <tr>
         <th>Connection Name</th>
         <th>Last Known IP</th>

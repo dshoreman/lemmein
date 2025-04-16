@@ -22,15 +22,11 @@ try {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ping | Lemmein</title>
-    <style type="text/css">
-      body { text-align: center; }
-      h2 { margin-top: 8vh; }
-      select { font-size: large; padding: 1rem; }
-      select option { padding: 1.5vh 3vw; text-align: center; }
-      button { font-size: larger; padding: 1vh 2vh; }
-    </style>
+    <link rel="stylesheet" href="/assets/style.css" />
   </head>
   <body>
+    <small><?= login_status(); ?></small>
+
     <h1>Device Ping</h1>
 
     <?= $error ?? "" ?>
