@@ -106,6 +106,7 @@ function save_json(array $list): bool {
 
 $config = (object) [
   'admins' => [],
+  'auth_header' => '',
   'show_uids' => false,
   'timezone' => 'Europe/London',
 ];
@@ -114,11 +115,11 @@ if (file_exists('../../data/config.json')) {
   $user_config = read_json_data('config.json');
 
   $config->admins = (array) ($user_config['admins'] ?? []);
-  $user_config['auth_header'] && $config->auth_header = $user_config['auth_header'];
+  $config->auth_header = $user_config['auth_header'] ?? '';
   $config->show_uids = (bool) ($user_config['show_uids'] ?? false);
 
-  $user_config['timezone'] && $config->timezone = $user_config['timezone'];
-  $user_config['proxy_ips'] && $config->proxies = $user_config['proxy_ips'];
+  $config->timezone = $user_config['timezone'] ?? $config->timezone;
+  $config->proxies = (array) ($user_config['proxy_ips'] ?? []);
 }
 
 date_default_timezone_set($config->timezone);
