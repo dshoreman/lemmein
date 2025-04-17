@@ -1,5 +1,6 @@
 <?php
 
+$user = (object) [];
 require_once '../core.php';
 
 try {
@@ -34,7 +35,7 @@ try {
     <h2>Which Connection?</h2>
     <form method="post" action="<?= htmlentities($_SERVER['PHP_SELF']); ?>">
       <select name="connection" id="connection" size="7" required>
-        <?php foreach ($list['connections'] as $connId => $conn): ?>
+        <?php foreach (user_connections($list, $user) as $connId => $conn): ?>
         <option value="<?= $connId; ?>">
           <?= $connId; ?> — <?= $conn['ip'] ?? 'No known IP'; ?>
         </option>

@@ -89,6 +89,18 @@ function list_from_file(): array {
   return $list;
 }
 
+function user_connections(array $list, object $user): array {
+  if (!$user->needs_auth || $user->is_admin) {
+    return $list['connections'];
+  }
+
+  return array_filter(
+    $list['connections'],
+    fn ($conn): bool =>
+      in_array($user->username, $conn['users'] ?? []) || !isset($conn['users'])
+  );
+}
+
 function get_ip(): string {
   global $config;
 

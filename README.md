@@ -68,6 +68,28 @@ auth provider. In the following examples it's assumed you're using Authentik.
       "admins": ["104cc0c42304687da5a597bd6cba2ebeadd2d93691802abb4d77c3f07832ca22"]
     ```
 
+#### Restricting Connection Pings
+
+Each connection can optionally have pings restricted to specific usernames:
+
+```json
+{
+  ...
+  "connections": {
+    ...
+    "Sally's Laptop": {
+      "users": ["sally"]
+    }
+  }
+}
+```
+
+> Admins can always ping all connections. If, however, a connection has
+> *no `users` key*, it'll be **pingable by *all*** authenticated users.
+>
+> To lock a connection to *"only admins"* you **must**
+> define an empty array, i.e. `"users": []`.
+
 ### List Access
 
 In **list.json**, any IPs that need access to the list can be defined as `consumers`:
