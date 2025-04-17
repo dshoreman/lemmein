@@ -3,67 +3,71 @@
 header('Cache-Control: no-cache, must-revalidate');
 
 function enforce_user(): void {
-  global $config;
+  global $config, $user;
 
   if (!$config->auth_header) {
+    $user->needs_auth = false;
+    $user->is_admin = true;
+
     return;
   }
 
   $uid_map = read_json_data('idmap.json');
   $admins = array_filter($config->admins ?? []);
-  $uid = trim($_SERVER["HTTP_{$config->auth_header}_UID"]);
-  $username = trim($_SERVER["HTTP_{$config->auth_header}_USERNAME"]);
+
+  $user->needs_auth = true;
+  $user->uid = trim($_SERVER["HTTP_{$config->auth_header}_UID"] ?? '');
+  $user->name = trim($_SERVER["HTTP_{$config->auth_header}_NAME"] ?? '');
+  $user->username = trim($_SERVER["HTTP_{$config->auth_header}_USERNAME"] ?? '');
+
+  $mapped_uid = $uid_map[$user->username] ?? null;
+  $user->is_admin = in_array($user->username, $admins) && $mapped_uid === $user->uid;
 
   // Allow admins to access anything
-  if (in_array($uid, $admins) || (
-    in_array($username, $admins) && ($uid_map[$username] ?? null) === $uid
-  )) {
+  if (in_array($user->uid, $admins) || $user->is_admin) {
+    $user->is_admin = true;
+
     return;
   }
 
-  $username = trim($_SERVER["HTTP_{$config->auth_header}_USERNAME"]);
-  $user = $username ? "user '{$username}'" : 'unknown user';
-
   // Allow anyone to access the ping page
-  if ($uid && $username && $_SERVER['SCRIPT_NAME'] === '/ping.php') {
+  if ($user->uid && $user->username && $_SERVER['SCRIPT_NAME'] === '/ping.php') {
     return;
   }
 
   // Redirect valid non-admin ping users from dashboard
-  if ($uid && $username && !$config->show_uids) {
+  if ($user->uid && $user->username && !$config->show_uids) {
     die(header('Location: /ping.php', true, 307));
   }
 
   // Refuse to serve requests lacking correct UID header
-  http_response_code($uid ? 401 : 403);
+  http_response_code($user->uid ? 401 : 403);
 
   if (!$config->show_uids) {
     exit;
   }
 
-  $reason = $uid ? 'Unauthorised' : 'Missing auth headers';
-  $reason = "Access denied for {$user}. Reason: {$reason}." . PHP_EOL;
-  $uid && $reason .= PHP_EOL . PHP_EOL . 'Your UID: ' . $uid . PHP_EOL;
+  $who = $user->username ? "user '{$user->username}'" : 'unknown user';
+  $reason = $user->uid ? 'Unauthorised' : 'Missing auth headers';
+  $reason = "Access denied for {$who}. Reason: {$reason}." . PHP_EOL;
+  $user->uid && $reason .= PHP_EOL . PHP_EOL . 'Your UID: ' . $user->uid . PHP_EOL;
 
   header('Content-Type: text/plain');
   die($reason);
 }
 
 function login_status(): string {
-  global $config;
+  global $user;
 
-  if (!$config->auth_header ?? null) {
+  if (!$user->needs_auth) {
     return '';
   }
 
-  $user = $_SERVER["HTTP_{$config->auth_header}_USERNAME"] ?? null;
-  $name = $_SERVER["HTTP_{$config->auth_header}_NAME"] ?? null;
-
-  if (!$user || !$name) {
+  if (!$user->username || !$user->name) {
     return 'Unauthenticated';
   }
 
-  return "Logged in as {$user} ({$name})";
+  return "Logged in as {$user->username} ({$user->name})";
 }
 
 function read_json_data($filename): array {
@@ -126,6 +130,7 @@ function save_json(array $list): bool {
     || throw new Exception("Failed to write JSON.");
 }
 
+$user = (object) [];
 $config = (object) [
   'admins' => [],
   'auth_header' => '',
