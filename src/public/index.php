@@ -1,5 +1,6 @@
 <?php
 
+$user = (object) [];
 require_once '../core.php';
 
 try {
@@ -18,7 +19,7 @@ try {
     <link rel="stylesheet" href="/assets/style.css" />
   </head>
   <body>
-    <small><?= login_status(); ?></small>
+    <small><?= login_status($user); ?></small>
 
     <h1>List: <?= $list['name'] ?></h1>
 

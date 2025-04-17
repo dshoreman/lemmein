@@ -2,6 +2,28 @@
 
 header('Cache-Control: no-cache, must-revalidate');
 
+function user_from_headers(object $config): object {
+  if (!$config->auth_header) {
+    return (object) [ 'needs_auth' => false, 'is_admin' => true ];
+  }
+
+  $user = (object) [
+    'needs_auth' => true,
+    'uid' => trim($_SERVER["HTTP_{$config->auth_header}_UID"] ?? ''),
+    'name' => trim($_SERVER["HTTP_{$config->auth_header}_NAME"] ?? ''),
+    'username' => trim($_SERVER["HTTP_{$config->auth_header}_USERNAME"] ?? ''),
+  ];
+
+  $uid_map = load_uid_map($user);
+  $admins = array_filter($config->admins ?? []);
+  $mapped_uid = $uid_map[$user->username] ?? null;
+
+  $user->is_admin = in_array($user->username, $admins) && $mapped_uid === $user->uid;
+  $user->is_valid = $user->uid && $user->name && $user->username;
+
+  return $user;
+}
+
 function load_uid_map(object $user) {
   try {
     $uid_map = read_json_data('idmap.json');
@@ -18,39 +40,19 @@ function load_uid_map(object $user) {
   return $uid_map;
 }
 
-function enforce_user(): void {
-  global $config, $user;
-
-  if (!$config->auth_header) {
-    $user->needs_auth = false;
-    $user->is_admin = true;
-
-    return;
-  }
-
-  $user->needs_auth = true;
-  $user->uid = trim($_SERVER["HTTP_{$config->auth_header}_UID"] ?? '');
-  $user->name = trim($_SERVER["HTTP_{$config->auth_header}_NAME"] ?? '');
-  $user->username = trim($_SERVER["HTTP_{$config->auth_header}_USERNAME"] ?? '');
-
-  $uid_map = load_uid_map($user);
-  $admins = array_filter($config->admins ?? []);
-  $mapped_uid = $uid_map[$user->username] ?? null;
-
-  $user->is_admin = in_array($user->username, $admins) && $mapped_uid === $user->uid;
-
+function enforce_user(object $user, object $config): void {
   // Allow admins to access anything
-  if ($user->is_admin) {
+  if ($user->is_admin || !$user->needs_auth) {
     return;
   }
 
   // Allow anyone to access the ping page
-  if ($user->uid && $user->username && $_SERVER['SCRIPT_NAME'] === '/ping.php') {
+  if ($user->is_valid && $_SERVER['SCRIPT_NAME'] === '/ping.php') {
     return;
   }
 
   // Redirect valid non-admin ping users from dashboard
-  if ($user->uid && $user->username && !$config->detailed_denials) {
+  if ($user->is_valid && !$config->detailed_denials) {
     die(header('Location: /ping.php', true, 307));
   }
 
@@ -70,9 +72,7 @@ function enforce_user(): void {
   die($reason);
 }
 
-function login_status(): string {
-  global $user;
-
+function login_status(object $user): string {
   if (!$user->needs_auth) {
     return '';
   }
@@ -156,7 +156,6 @@ function save_json(array $list, string $file): bool {
     || throw new Exception("Failed to write JSON.");
 }
 
-$user = (object) [];
 $config = (object) [
   'admins' => [],
   'auth_header' => '',
@@ -178,5 +177,7 @@ if (file_exists('../../data/config.json')) {
 date_default_timezone_set($config->timezone);
 
 if ($_SERVER['SCRIPT_NAME'] !== '/list.php') {
-  enforce_user();
+  $user = user_from_headers($config);
+
+  enforce_user($user, $config);
 }
