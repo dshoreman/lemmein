@@ -1,5 +1,7 @@
 <?php
 
+header('Cache-Control: no-cache, must-revalidate');
+
 function enforce_user(): void {
   global $config;
 
