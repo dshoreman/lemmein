@@ -9,11 +9,15 @@ function enforce_user(): void {
     return;
   }
 
+  $uid_map = read_json_data('idmap.json');
   $admins = array_filter($config->admins ?? []);
   $uid = trim($_SERVER["HTTP_{$config->auth_header}_UID"]);
+  $username = trim($_SERVER["HTTP_{$config->auth_header}_USERNAME"]);
 
   // Allow admins to access anything
-  if (in_array($uid, $admins)) {
+  if (in_array($uid, $admins) || (
+    in_array($username, $admins) && ($uid_map[$username] ?? null) === $uid
+  )) {
     return;
   }
 
