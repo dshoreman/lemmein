@@ -1,6 +1,7 @@
 <?php
 
 $user = (object) [];
+$config = (object) [];
 require_once '../core.php';
 
 try {
@@ -21,7 +22,10 @@ try {
   <body>
     <small><?= login_status($user); ?></small>
 
-    <h1>List: <?= $list['name'] ?></h1>
+    <h1><?= $list['name'] ?></h1>
+
+    <h3>List URIs:</h3>
+    <pre><p><?= implode('</p><p>', list_uris($config)); ?></p></pre>
 
     <?= $error ?? "" ?>
 

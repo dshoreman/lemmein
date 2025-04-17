@@ -133,6 +133,21 @@ function get_ip(): string {
   return $remote;
 }
 
+function list_uris(object $config): array {
+  $proto = ($_SERVER['HTTPS'] ?? null) && 'off' !== $_SERVER['HTTPS'] ? 'https' : 'http';
+
+  if (!in_array($_SERVER['REMOTE_ADDR'], $config->proxies ?? [])) {
+    return ["{$proto}://{$_SERVER['HTTP_HOST']}/list.php"];
+  }
+
+  $fwdproto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? $proto;
+
+  return [
+    "{$proto}://{$_SERVER['SERVER_NAME']}:{$_SERVER['SERVER_PORT']}/list.php",
+    "{$fwdproto}://{$_SERVER['HTTP_HOST']}/list.php"
+  ];
+}
+
 function update_connection(array $list, string $connection): array {
   is_array($list['connections'][$connection] ?? null)
     || throw new Exception("Connection '{$connection}' is missing or invalid.");
