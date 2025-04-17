@@ -53,20 +53,27 @@ auth provider. In the following examples it's assumed you're using Authentik.
 
     ```json
       "auth_header": "X_AUTHENTIK",
-      "show_uids": true
+      "detailed_denials": true
     ```
 
 3. Login with Authentik and you'll see an "Access denied" message.  
-   > To see an error you **must** enable `show_uids`.
+   > At this point there should already be an entry
+   > in **data/idmap.json** that matches your UID.  
+   > To see an error, you ***must*** enable `detailed_denials`.
    >
    > When disabled, non-admin users accessing the dash are simply redirected to ping.
-4. Copy your Authentik UID into the admins list.
-   If you're the only user, you can also disable UIDs:
+
+4. Add your Authentik username to the admins list:
 
     ```json
       "auth_header": "X_AUTHENTIK",
-      "admins": ["104cc0c42304687da5a597bd6cba2ebeadd2d93691802abb4d77c3f07832ca22"]
+      "admins": ["jack"]
     ```
+
+   > ***Note:** Don't forget to remove `detailed_denials`
+   > (or set it to `false`) to enable Dashboard redirects!*
+
+5. Save the config, refresh the page and you're (hopefully) in.
 
 #### Restricting Connection Pings
 

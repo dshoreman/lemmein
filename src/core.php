@@ -2,6 +2,22 @@
 
 header('Cache-Control: no-cache, must-revalidate');
 
+function load_uid_map(object $user) {
+  try {
+    $uid_map = read_json_data('idmap.json');
+  } catch (Exception $e) {
+    $uid_map = [];
+  }
+
+  if ($user->uid && !isset($uid_map[$user->username])) {
+    $uid_map[$user->username] = $user->uid;
+
+    save_json($uid_map, 'idmap.json');
+  }
+
+  return $uid_map;
+}
+
 function enforce_user(): void {
   global $config, $user;
 
@@ -12,21 +28,19 @@ function enforce_user(): void {
     return;
   }
 
-  $uid_map = read_json_data('idmap.json');
-  $admins = array_filter($config->admins ?? []);
-
   $user->needs_auth = true;
   $user->uid = trim($_SERVER["HTTP_{$config->auth_header}_UID"] ?? '');
   $user->name = trim($_SERVER["HTTP_{$config->auth_header}_NAME"] ?? '');
   $user->username = trim($_SERVER["HTTP_{$config->auth_header}_USERNAME"] ?? '');
 
+  $uid_map = load_uid_map($user);
+  $admins = array_filter($config->admins ?? []);
   $mapped_uid = $uid_map[$user->username] ?? null;
+
   $user->is_admin = in_array($user->username, $admins) && $mapped_uid === $user->uid;
 
   // Allow admins to access anything
-  if (in_array($user->uid, $admins) || $user->is_admin) {
-    $user->is_admin = true;
-
+  if ($user->is_admin) {
     return;
   }
 
@@ -36,14 +50,14 @@ function enforce_user(): void {
   }
 
   // Redirect valid non-admin ping users from dashboard
-  if ($user->uid && $user->username && !$config->show_uids) {
+  if ($user->uid && $user->username && !$config->detailed_denials) {
     die(header('Location: /ping.php', true, 307));
   }
 
   // Refuse to serve requests lacking correct UID header
   http_response_code($user->uid ? 401 : 403);
 
-  if (!$config->show_uids) {
+  if (!$config->detailed_denials) {
     exit;
   }
 
@@ -75,7 +89,7 @@ function read_json_data($filename): array {
 
   $file === false && throw new Exception("Failed to open data/{$filename}.");
 
-  return json_decode($file, true);
+  return json_decode($file, true) ?: [];
 }
 
 function list_from_file(): array {
@@ -133,12 +147,12 @@ function update_connection(array $list, string $connection): array {
   return $list;
 }
 
-function save_json(array $list): bool {
+function save_json(array $list, string $file): bool {
   $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR;
 
   $json = json_encode($list, $flags);
 
-  return file_put_contents('../../data/list.json', $json)
+  return file_put_contents("../../data/{$file}", $json)
     || throw new Exception("Failed to write JSON.");
 }
 
@@ -146,7 +160,7 @@ $user = (object) [];
 $config = (object) [
   'admins' => [],
   'auth_header' => '',
-  'show_uids' => false,
+  'detailed_denials' => false,
   'timezone' => 'Europe/London',
 ];
 
@@ -155,7 +169,7 @@ if (file_exists('../../data/config.json')) {
 
   $config->admins = (array) ($user_config['admins'] ?? []);
   $config->auth_header = $user_config['auth_header'] ?? '';
-  $config->show_uids = (bool) ($user_config['show_uids'] ?? false);
+  $config->detailed_denials = (bool) ($user_config['detailed_denials'] ?? false);
 
   $config->timezone = $user_config['timezone'] ?? $config->timezone;
   $config->proxies = (array) ($user_config['proxy_ips'] ?? []);
