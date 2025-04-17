@@ -20,12 +20,25 @@ try {
   <body>
     <small><?= login_status(); ?></small>
 
-    <h1>Connections Dashboard</h1>
+    <h1>List: <?= $list['name'] ?></h1>
 
     <?= $error ?? "" ?>
 
-    <h2>Managing List: <?= $list['name'] ?></h2>
+    <h2>Static Networks</h2>
+    <table align="center" cellspacing="25">
+      <tr>
+        <th>Network Name</th>
+        <th>Subnet</th>
+      </tr>
+      <?php foreach ($list['networks'] as $network => $subnet): ?>
+      <tr>
+        <td><?= $network ?></td>
+        <td><?= $subnet ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
 
+    <h2>Dynamic Connections</h2>
     <table align="center" cellspacing="25">
       <tr>
         <th>Connection Name</th>
@@ -33,7 +46,7 @@ try {
         <th>Last Updated</th>
       </tr>
       <?php foreach ($list['connections'] as $connId => $conn): ?>
-      <tr align="center">
+      <tr>
         <td><?= $connId ?></td>
         <?php if (!is_array($conn) || !isset($conn['ip'], $conn['since'])): ?>
           <td colspan="2">Awaiting Ping</td>
