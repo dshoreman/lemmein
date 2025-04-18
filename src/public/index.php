@@ -20,7 +20,7 @@ try {
     <link rel="stylesheet" href="/assets/style.css" />
   </head>
   <body>
-    <small><?= login_status($user); ?></small>
+    <small class="login"><?= login_status($user); ?></small>
 
     <h1><?= $list['name'] ?></h1>
 

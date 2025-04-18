@@ -1,7 +1,9 @@
 body { text-align: center; }
 h2 { margin-top: 6vh; }
+h2.ip { margin-bottom: 1vh; }
+p.ipfix { margin-top: 0; font-weight: bold; }
 
-small {
+small.login {
   display: block;
   text-align: right;
 }

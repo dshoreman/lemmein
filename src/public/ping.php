@@ -8,7 +8,7 @@ try {
   $connection = $_POST['connection'] ?? null;
 
   if ($connection) {
-    $list = update_connection($list, $connection);
+    $list = update_connection($list, $connection, $_POST['ip'] ?? '');
 
     save_json($list, 'list.json');
 
@@ -28,7 +28,7 @@ try {
     <link rel="stylesheet" href="/assets/style.css" />
   </head>
   <body>
-    <small><?= login_status($user); ?></small>
+    <small class="login"><?= login_status($user); ?></small>
 
     <h1>Device Ping</h1>
 
@@ -37,6 +37,7 @@ try {
     <h2>Which Connection?</h2>
     <form method="post" action="<?= htmlentities($_SERVER['PHP_SELF']); ?>">
       <select name="connection" id="connection" size="7" required>
+        <option selected disabled>Select one...</option>
         <?php foreach (user_connections($list, $user) as $connId => $conn): ?>
         <option value="<?= $connId; ?>">
           <?= $connId; ?> — <?= $conn['ip'] ?? 'No known IP'; ?>
@@ -44,8 +45,24 @@ try {
         <?php endforeach; ?>
       </select>
 
-      <h2>Your IP: <?= get_ip(); ?></h2>
+      <h2 class="ip">Your IP: <span id="ip"><?= get_ip(); ?></span></h2>
+      <p class="ipfix">
+        <a href="#" onclick="fetch_ipv4(); return false;">Not quite right?</a>
+      </p>
+      <input type="hidden" name="ip" id="ip_input" value="" />
       <button>Send Ping</button>
     </form>
+
+    <script>
+      function fetch_ipv4() {
+        fetch('https://api.ipify.org')
+          .then((resp) => resp.text())
+          .then((ip) => {
+            document.getElementById('ip').innerText = ip;
+            document.getElementById('ip_input').value = ip;
+          })
+        ;
+      }
+    </script>
   </body>
 </html>

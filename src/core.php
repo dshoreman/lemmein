@@ -148,11 +148,11 @@ function list_uris(object $config): array {
   ];
 }
 
-function update_connection(array $list, string $connection): array {
+function update_connection(array $list, string $connection, string $ip = ''): array {
   is_array($list['connections'][$connection] ?? null)
     || throw new Exception("Connection '{$connection}' is missing or invalid.");
 
-  $new_ip = get_ip();
+  $new_ip = filter_var($ip, FILTER_VALIDATE_IP) ?: get_ip();
   $old_ip = $list['connections'][$connection]['ip'] ?? '';
   $new_ip === $old_ip && throw new Exception("Connection IP hasn't changed!");
 
