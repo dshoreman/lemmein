@@ -1,6 +1,14 @@
 body { text-align: center; }
 h2 { margin-top: 6vh; }
+form { margin-top: 10vh; }
 h2.ip { margin-bottom: 1vh; }
+span#ip {
+  display: inline-flex;
+  max-width: 90%;
+  max-width: -webkit-fill-available;
+  overflow-x: auto;
+  padding: 1vh 3vw;
+}
 p.ipfix { margin-top: 0; font-weight: bold; }
 
 small.login {
@@ -12,7 +20,13 @@ select {
   font-size: large;
   padding: 1rem;
 }
-
+select option:disabled {
+  background: transparent;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.3em;
+  color: black;
+}
 select option {
   padding: 1.5vh 3vw;
   text-align: center;

@@ -34,10 +34,9 @@ try {
 
     <?= $error ?? "" ?>
 
-    <h2>Which Connection?</h2>
     <form method="post" action="<?= htmlentities($_SERVER['PHP_SELF']); ?>">
-      <select name="connection" id="connection" size="7" required>
-        <option selected disabled>Select one...</option>
+      <select name="connection" id="connection" size="5" required>
+        <option selected disabled>Which Connection?</option>
         <?php foreach (user_connections($list, $user) as $connId => $conn): ?>
         <option value="<?= $connId; ?>">
           <?= $connId; ?> — <?= $conn['ip'] ?? 'No known IP'; ?>
@@ -45,7 +44,10 @@ try {
         <?php endforeach; ?>
       </select>
 
-      <h2 class="ip">Your IP: <span id="ip"><?= get_ip(); ?></span></h2>
+      <h2 class="ip">
+        <span class="iplabel">Your IP:</span>
+        <span id="ip"><?= get_ip(); ?></span>
+      </h2>
       <p class="ipfix">
         <a href="#" onclick="fetch_ipv4(); return false;">Not quite right?</a>
       </p>
