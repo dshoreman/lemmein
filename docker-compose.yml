@@ -12,4 +12,4 @@ services:
       - 80:80
     volumes:
       - ./docker/Caddyfile:/etc/caddy/Caddyfile
-      - ./src/public:/app
+      - ./src/public:/app/public
