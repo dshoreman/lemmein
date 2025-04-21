@@ -1,0 +1,10 @@
+:80 {
+	root /app
+	log stdout
+
+	file_server
+
+	php_fastcgi backend:9000 {
+		root /var/www/public
+	}
+}

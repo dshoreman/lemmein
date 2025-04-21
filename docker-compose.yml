@@ -1,0 +1,15 @@
+services:
+
+  backend:
+    image: php:8.4-fpm-alpine
+    volumes:
+      - ./src:/var/www
+      - ./data:/var/data
+
+  frontend:
+    image: caddy
+    ports:
+      - 80:80
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile
+      - ./src/public:/app
