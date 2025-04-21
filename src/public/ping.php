@@ -12,7 +12,7 @@ try {
 
     save_json($list, 'list.json');
 
-    header("Location: /ping.php");
+    header('Location: ' . ping_page());
   }
 } catch (Exception $e) {
   $error = "<b>Error:</b> {$e->getMessage()}";
@@ -34,7 +34,7 @@ try {
 
     <?= $error ?? "" ?>
 
-    <form method="post" action="<?= htmlentities($_SERVER['PHP_SELF']); ?>">
+    <form method="post" action="<?= ping_page(); ?>">
       <select name="connection" id="connection" size="5" required>
         <option selected disabled>Which Connection?</option>
         <?php foreach (user_connections($list, $user) as $connId => $conn): ?>

@@ -53,7 +53,7 @@ function enforce_user(object $user, object $config): void {
 
   // Redirect valid non-admin ping users from dashboard
   if ($user->is_valid && !$config->detailed_denials) {
-    die(header('Location: /ping.php', true, 307));
+    die(header('Location: ' . ping_page(), true, 307));
   }
 
   // Refuse to serve requests lacking correct UID header
@@ -134,6 +134,10 @@ function get_ip(): string {
   }
 
   return $remote;
+}
+
+function ping_page(): string {
+    return needs_php_ext() ? '/ping.php' : '/ping';
 }
 
 function needs_php_ext(): bool {
