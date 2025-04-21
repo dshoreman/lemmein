@@ -4,7 +4,10 @@
 
 	file_server
 
+	redir /index.php /
+
 	php_fastcgi backend:9000 {
 		root /var/www/public
+		try_files {path} {path}/index.php =404
 	}
 }
