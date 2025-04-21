@@ -7,6 +7,7 @@ require_once '../core.php';
 try {
   $list = list_from_file();
 } catch (Exception $e) {
+  $list = ['name' => 'Lemmein!'];
   $error = "<b>Error:</b> {$e->getMessage()}";
 }
 
@@ -24,10 +25,10 @@ try {
 
     <h1><?= $list['name'] ?></h1>
 
+    <?= $error ?? "" ?>
+
     <h3>List URIs:</h3>
     <pre><p><?= implode('</p><p>', list_uris($config)); ?></p></pre>
-
-    <?= $error ?? "" ?>
 
     <h2>Static Networks</h2>
     <table align="center" cellspacing="25">
@@ -35,7 +36,7 @@ try {
         <th>Network Name</th>
         <th>Subnet</th>
       </tr>
-      <?php foreach ($list['networks'] as $network => $subnet): ?>
+      <?php foreach ($list['networks'] ?? [] as $network => $subnet): ?>
       <tr>
         <td><?= $network ?></td>
         <td><?= $subnet ?></td>
@@ -50,7 +51,7 @@ try {
         <th>Last Known IP</th>
         <th>Last Updated</th>
       </tr>
-      <?php foreach ($list['connections'] as $connId => $conn): ?>
+      <?php foreach ($list['connections'] ?? [] as $connId => $conn): ?>
       <tr>
         <td><?= $connId ?></td>
         <?php if (!is_array($conn) || !isset($conn['ip'], $conn['since'])): ?>

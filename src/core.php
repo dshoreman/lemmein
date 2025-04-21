@@ -85,6 +85,9 @@ function login_status(object $user): string {
 }
 
 function read_json_data($filename): array {
+  file_exists('../../data/' . $filename)
+    || throw new Exception("Missing data/{$filename}");
+
   $file = file_get_contents('../../data/' . $filename);
 
   $file === false && throw new Exception("Failed to open data/{$filename}.");
