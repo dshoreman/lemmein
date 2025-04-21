@@ -4,7 +4,8 @@
 
 	file_server
 
-	rewrite / /index
+	redir /dash /
+	rewrite / /dash
 
 	php_fastcgi backend:9000 {
 		root /var/www/public

@@ -136,19 +136,26 @@ function get_ip(): string {
   return $remote;
 }
 
+function needs_php_ext(): bool {
+  return str_contains($_SERVER['REQUEST_URI'], '.php');
+}
+
 function list_uris(object $config): array {
   $proto = ($_SERVER['HTTPS'] ?? null) && 'off' !== $_SERVER['HTTPS'] ? 'https' : 'http';
+  $list_uri = needs_php_ext() ? 'list.php' : 'list';
+  $proxies = $config->proxies ?? [];
 
-  if (!in_array($_SERVER['REMOTE_ADDR'], $config->proxies ?? [])) {
-    return ["{$proto}://{$_SERVER['HTTP_HOST']}/list.php"];
+  if (count($proxies) && in_array($_SERVER['REMOTE_ADDR'], $proxies)) {
+    $fwdproto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? $proto;
   }
 
-  $fwdproto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? $proto;
+  $fwdproto = $fwdproto ?? $proto;
+  $localhost = $_SERVER['HOSTNAME'] ?? $_SERVER['SERVER_NAME'];
 
-  return [
-    "{$proto}://{$_SERVER['SERVER_NAME']}:{$_SERVER['SERVER_PORT']}/list.php",
-    "{$fwdproto}://{$_SERVER['HTTP_HOST']}/list.php"
-  ];
+  return array_unique([
+    "{$fwdproto}://{$_SERVER['HTTP_HOST']}/{$list_uri}",
+    "{$proto}://{$localhost}:{$_SERVER['SERVER_PORT']}/{$list_uri}",
+  ]);
 }
 
 function update_connection(array $list, string $connection, string $ip = ''): array {
