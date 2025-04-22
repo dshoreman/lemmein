@@ -3,6 +3,8 @@ services:
   backend:
     image: php:8.4-fpm-alpine
     volumes:
+      - ./docker/php-fpm.ini:/usr/local/etc/php-fpm.d/zz-custom.conf
+      - ./docker/php.ini:/usr/local/etc/php/conf.d/zz-custom.ini
       - ./src:/var/www
       - ./data:/var/data
 
