@@ -2,9 +2,10 @@
 
 $user = (object) [];
 $config = (object) [];
-require_once '../core.php';
 
 try {
+  require_once '../core.php';
+
   $list = list_from_file();
 } catch (Exception $e) {
   $list = ['name' => 'Lemmein!'];

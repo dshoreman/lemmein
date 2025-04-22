@@ -1,10 +1,10 @@
 <?php
 
-require_once '../core.php';
-
 header('Content-Type: text/plain');
 
 try {
+  require_once '../core.php';
+
   $list = list_from_file();
   $consumers = $list['consumers'] ?? [];
 
@@ -25,5 +25,7 @@ try {
     echo $ip_or_cidr_block . PHP_EOL;
   }
 } catch (Exception $e) {
+  http_response_code(500);
+
   echo 'Error: ' . $e->getMessage();
 }

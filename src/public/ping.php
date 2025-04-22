@@ -1,9 +1,10 @@
 <?php
 
 $user = (object) [];
-require_once '../core.php';
 
 try {
+  require_once '../core.php';
+
   $list = list_from_file();
   $connection = $_POST['connection'] ?? null;
 
