@@ -10,17 +10,35 @@
 
 :80 {
 	root /app/public
+	rewrite / /dash
+	redir /dash /
+	redir /dash.php /
+	redir /list.php /list
+	redir /ping.php /ping
+
 	log {
 		format console
 	}
 
-	file_server
+	@assets {
+		path_regexp \.(css|js)$
+		file {
+			try_files {path}
+		}
+	}
+	handle @assets {
+		file_server
+	}
 
-	redir /dash /
-	rewrite / /dash
-
-	php_fastcgi backend:9000 {
-		root /var/www/public
+	@phpRoutes path_regexp ^/(dash|list|ping)$
+	handle @phpRoutes {
 		try_files {path}.php =404
+		php_fastcgi backend:9000 {
+			root /var/www/public
+		}
+	}
+
+	handle {
+		respond 404
 	}
 }
