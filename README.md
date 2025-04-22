@@ -13,7 +13,7 @@ Configuration is stored as JSON files inside the **data/** directory.
      "name": "My List",
      "connections": {
        "4G": {}
-     }]
+     }
    }
    ```
 
@@ -110,6 +110,6 @@ In **list.json**, any IPs that need access to the list can be defined as `consum
 ```
 
 To avoid being redirected when accessing the list from e.g.
-a firewall, add `^/list\.php*` to your proxy's no-auth list.  
+a firewall, add `^/list(\.php)?$` to your proxy's no-auth list.  
 In Authentik, it's the **Advanced Protocol settings >
 Unauthenticated paths** provider option.
