@@ -1,4 +1,8 @@
 {
+	log {
+		format console
+		# level DEBUG
+	}
 	servers {
 		trusted_proxies static private_ranges
 	}
@@ -6,7 +10,9 @@
 
 :80 {
 	root /app/public
-	log stdout
+	log {
+		format console
+	}
 
 	file_server
 
