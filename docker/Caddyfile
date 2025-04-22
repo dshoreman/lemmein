@@ -10,25 +10,13 @@
 
 :80 {
 	root /app/public
+
+	# Replaces foo/, foo/*, foo.php, and foo.php?* with foo
+	# Does not match for paths like foo.phps or foo?bar
+	@trailing path_regexp ^/(dash|list|ping)((/|\.php\?).*|\.php)$
+	redir @trailing /{re.1}
 	rewrite / /dash
 	redir /dash /
-	redir /dash.php /
-	redir /list.php /list
-	redir /ping.php /ping
-
-	log {
-		format console
-	}
-
-	@assets {
-		path_regexp \.(css|js)$
-		file {
-			try_files {path}
-		}
-	}
-	handle @assets {
-		file_server
-	}
 
 	@phpRoutes path_regexp ^/(dash|list|ping)$
 	handle @phpRoutes {
@@ -39,6 +27,10 @@
 	}
 
 	handle {
-		respond 404
+		file_server
+	}
+
+	log {
+		format console
 	}
 }
