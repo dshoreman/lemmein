@@ -204,7 +204,7 @@ function save_json(array $list, string $file): bool {
   $json = json_encode($list, $flags);
 
   return file_put_contents("../../data/{$file}", $json)
-    || throw new Exception("Failed to write JSON.");
+    || throw new Exception("Failed to write {$file}.");
 }
 
 $frontend = detect_proxy();
