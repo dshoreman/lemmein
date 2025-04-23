@@ -34,6 +34,10 @@ function load_uid_map(object $user) {
   if ($user->uid && !isset($uid_map[$user->username])) {
     $uid_map[$user->username] = $user->uid;
 
+    // This throws on permission errors etc, but we do NOT want
+    // to catch it. If it's not written, every request would be
+    // a "new" uidmap with whatever username/uid combo is tried
+    // thus allowing access to anyone and everyone. Not ideal.
     save_json($uid_map, 'idmap.json');
   }
 
@@ -89,10 +93,13 @@ function read_json_data($filename): array {
     || throw new Exception("Missing data/{$filename}");
 
   $file = file_get_contents('../../data/' . $filename);
+  is_string($file) || throw new Exception("Failed to open data/{$filename}.");
 
-  $file === false && throw new Exception("Failed to open data/{$filename}.");
-
-  return json_decode($file, true) ?: [];
+  try {
+    return json_decode($file, true, flags: JSON_THROW_ON_ERROR);
+  } catch (Exception $e) {
+    throw new Exception("Failed to parse {$filename}: {$e->getMessage()}.");
+  }
 }
 
 function list_from_file(): array {
