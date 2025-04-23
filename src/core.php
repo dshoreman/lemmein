@@ -125,6 +125,21 @@ function user_connections(array $list, object $user): array {
   );
 }
 
+// Attempt to find Caddy in local Docker networks for automatic trust.
+// Searches the default 172.16.0.0/12 subnet, excluding the .16 range.
+function detect_proxy(): string {
+  $octets = explode('.', $_SERVER['REMOTE_ADDR']);
+
+  if (!str_starts_with($_SERVER['SERVER_SOFTWARE'] ?? '', 'Caddy/v2') ||
+    172 !== (int) $octets[0] || 16 >= (int) $octets[1] || 32 <= (int) $octets[1]) {
+    return '';
+  }
+
+  $host = gethostbyname('frontend');
+
+  return $host === 'frontend' ? '' : $host;
+}
+
 function get_ip(): string {
   global $config;
 
@@ -192,10 +207,13 @@ function save_json(array $list, string $file): bool {
     || throw new Exception("Failed to write JSON.");
 }
 
+$frontend = detect_proxy();
+
 $config = (object) [
   'admins' => [],
   'auth_header' => '',
   'detailed_denials' => false,
+  'proxies' => $frontend ? [$frontend] : [],
   'timezone' => 'Europe/London',
 ];
 
@@ -206,8 +224,9 @@ if (file_exists('../../data/config.json')) {
   $config->auth_header = $user_config['auth_header'] ?? '';
   $config->detailed_denials = (bool) ($user_config['detailed_denials'] ?? false);
 
+  $user_proxies = (array) ($user_config['proxy_ips'] ?? []);
+  $config->proxies = array_merge($config->proxies, $user_proxies);
   $config->timezone = $user_config['timezone'] ?? $config->timezone;
-  $config->proxies = (array) ($user_config['proxy_ips'] ?? []);
 }
 
 date_default_timezone_set($config->timezone);
