@@ -224,8 +224,10 @@ if (file_exists('../../data/config.json')) {
   $config->auth_header = $user_config['auth_header'] ?? '';
   $config->detailed_denials = (bool) ($user_config['detailed_denials'] ?? false);
 
-  $user_proxies = (array) ($user_config['proxy_ips'] ?? []);
-  $config->proxies = array_merge($config->proxies, $user_proxies);
+  $config->proxies = array_merge($config->proxies, array_map(
+    fn (string $host) => gethostbyname($host),
+    (array) ($user_config['proxies'] ?? [])
+  ));
   $config->timezone = $user_config['timezone'] ?? $config->timezone;
 }
 

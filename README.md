@@ -30,12 +30,12 @@ Configuration is stored as JSON files inside the **data/** directory.
    > They're included in list output, but *not* on the ping page.
 
 3. Create a **config.json** to set your timezone.
-   If you're behind a proxy, configure its IP too:
+   If you're behind a proxy, configure its IP/hostname too:
 
    ```jsonp
    {
      "timezone": "Europe/London",
-     "proxy_ips": [
+     "proxies": [
        "127.0.0.1"
      ]
    }
